@@ -112,7 +112,7 @@ def train(epoch):
             writer.add_figure('predictions vs. actuals',
                               plot_classes_preds(model, inputs, targets, classes),
                               global_step=epoch * len(train_loader) + batch_idx)
-            writer.close()
+        writer.flush()
         progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
@@ -145,7 +145,7 @@ def test(epoch):
                 writer.add_figure('predictions vs. actuals',
                                   plot_classes_preds(model, inputs, targets, classes),
                                   global_step=epoch * len(test_loader) + batch_idx)
-                writer.close()
+            writer.flush()
 
             progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
