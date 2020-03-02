@@ -75,7 +75,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=opt.lr, momentum=0.9, weight_decay=5e-4)
 
 # TODO: Edit to write for various experiment
-writer = SummaryWriter('runs/cifar10-grey')
+writer = SummaryWriter('runs/cifar10-grey_resnet18')
 # writer.add_graph(model) # write model architecture
 # writer.close()
 
