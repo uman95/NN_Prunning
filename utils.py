@@ -143,7 +143,7 @@ def images_to_probs(net, images):
     output = net(images)
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max(output, 1)
-    preds = np.squeeze(preds_tensor.numpy())
+    preds = np.squeeze(preds_tensor.cpu())
     return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, output)]
 
 
