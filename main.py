@@ -2,6 +2,8 @@
 
 trainig Cifar-100 greayscale with Resnet18
 """
+from pkgutil import get_loader
+
 from models.resnet import ResNet18, ResNet50
 from utils import *
 '''Train CIFAR10 with PyTorch.'''
@@ -9,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
-
+from data import get_dataloader
 import torchvision
 import torchvision.transforms as transforms
 
@@ -45,46 +47,11 @@ best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
 # Data
-print('=====> Preparing data........')
-transform_train = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1),
-    transforms.ToTensor(),
-    transforms.Normalize((0.47336,), (0.2507,))
-])
-
-transform_test = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1),
-    transforms.ToTensor(),
-    transforms.Normalize((0.47336,), (0.2507,)),
-])
-
-
-trainset = torchvision.datasets.CIFAR10(root='./data',
-                                        train=True,
-                                        download=True,
-                                        transform=transform_train)
-
-trainloader = torch.utils.data.DataLoader(trainset,
-                                          batch_size=32,
-                                          shuffle=True,
-                                          num_workers=0)
-
-testset = torchvision.datasets.CIFAR10(root='./data',
-                                       train=False,
-                                       download=True,
-                                       transform=transform_test)
-
-testloader = torch.utils.data.DataLoader(testset,
-                                         batch_size=32,
-                                         shuffle=False,
-                                         num_workers=0)
-
-
-classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+print('=====> Get dataloader ........')
+train_loader, test_loader = get_dataloader()
 
 # Model
 print('=====> Building model.....')
-
 
 model = ResNet18()
 model = model.to(device)
@@ -115,7 +82,7 @@ def train(epoch):
     train_loss = 0
     correct = 0
     total = 0
-    for batch_idx, (inputs, targets) in enumerate(trainloader):
+    for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
@@ -128,7 +95,7 @@ def train(epoch):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
-        progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+        progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
 
@@ -139,7 +106,7 @@ def test(epoch):
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(testloader):
+        for batch_idx, (inputs, targets) in enumerate(test_loader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = model(inputs)
             loss = criterion(outputs, targets)
@@ -149,7 +116,7 @@ def test(epoch):
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
 
-            progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+            progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
     # Save checkpoint.
