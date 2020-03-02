@@ -97,23 +97,22 @@ def train(epoch):
         optimizer.step()
 
         train_loss += loss.item()
+        _, predicted = outputs.max(1)
+        total += targets.size(0)
+        correct += predicted.eq(targets).sum().item()
 
         if batch_idx % 1000 == 999:  # every 1000 mini-batches...
 
             # ...log the running loss
             writer.add_scalar('training loss', train_loss / 1000, epoch * len(train_loader) + batch_idx)
+            writer.add_scalar('Training accuracy', 100. * correct / total, epoch * len(train_loader) + batch_idx)
 
             # ...log a Matplotlib Figure showing the model's predictions on a
             # random mini-batch
             writer.add_figure('predictions vs. actuals',
                               plot_classes_preds(model, inputs, targets, classes),
                               global_step=epoch * len(train_loader) + batch_idx)
-            running_loss = 0.0
-
-        _, predicted = outputs.max(1)
-        total += targets.size(0)
-        correct += predicted.eq(targets).sum().item()
-
+            writer.close()
         progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
@@ -131,19 +130,22 @@ def test(epoch):
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
+
+            # ====> logging <=========
             if batch_idx % 1000 == 999:  # every 1000 mini-batches...
 
                 # ...log the test loss
                 writer.add_scalar('test loss', test_loss / 1000, epoch * len(test_loader) + batch_idx)
+                writer.add_scalar('Test accuracy', 100.*correct/total, epoch * len(test_loader) + batch_idx)
                 # ...log a Matplotlib Figure showing the model's predictions on a
                 # random mini-batch
                 writer.add_figure('predictions vs. actuals',
                                   plot_classes_preds(model, inputs, targets, classes),
                                   global_step=epoch * len(test_loader) + batch_idx)
-                running_loss = 0.0
-            _, predicted = outputs.max(1)
-            total += targets.size(0)
-            correct += predicted.eq(targets).sum().item()
+                writer.close()
 
             progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
