@@ -22,9 +22,7 @@ import argparse
 parser = argparse.ArgumentParser(description='PyTorch greyScale CIFAR100 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', default=False, action='store_true', help='resume from checkpoint')
-# parser.add_argument('--dataset', type=str, default='cifar100', help='cifar10 | cifar100 | folder')
-# parser.add_argument('--dataroot', type=str, default='./data', help='path to dataset')
-parser.add_argument('--model', type=str, help='Which model to run')
+parser.add_argument('--model', required=True, type=str, help='Which model to run: ("resnet18" | "resnet50" ')
 parser.add_argument('--workers', type=int, default=2, help='number of data loading workers')
 parser.add_argument('--batchSize', type=int, default=16, help='input batch size')
 parser.add_argument('--nEpochs', type=int, default=100, help='number of epochs to train for')
@@ -51,7 +49,12 @@ train_loader, test_loader = get_dataloader()
 # Model
 print('=====> Building model.....')
 
-model = ResNet18()
+
+if opt.model == 'resnet18':
+    model = ResNet18()
+elif opt.model == 'resnet50':
+    model = ResNet50()
+
 model = model.to(device)
 
 if device == 'cuda':
@@ -75,9 +78,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=opt.lr, momentum=0.9, weight_decay=5e-4)
 
 # TODO: Edit to write for various experiment
-writer = SummaryWriter('runs/cifar10-grey_resnet18')
-# writer.add_graph(model) # write model architecture
-# writer.close()
+writer = SummaryWriter('runs/cifar10-grey'+ opt.model)
 
 
 # Training

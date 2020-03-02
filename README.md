@@ -9,7 +9,7 @@ pip3 install -r requirements.txt
 ```
 **To run the main algorithm:**
 ```bash
-python3 main.py --nEpochs=100
+python3 main.py --model --nEpochs=100
 ```
 **optional arguments include:**
 ```bash
