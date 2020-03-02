@@ -5,6 +5,8 @@ import torch.nn.functional as F
 import torch.nn as nn 
 import numpy as np 
 
+# TODO: Edit this file to cater for CIFAR10 and ImageNet
+
 
 def get_dataloader():
     train_loader = torch.utils.data.DataLoader(datasets.CIFAR10('./data',train=True, transform= transforms.Compose([

@@ -12,20 +12,18 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 from data import get_dataloader
-import torchvision
-import torchvision.transforms as transforms
-
-
+from torch.utils.tensorboard import SummaryWriter
 import os
 import argparse
+
 
 # --------Parameters ---------####
 
 parser = argparse.ArgumentParser(description='PyTorch greyScale CIFAR100 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', default=False, action='store_true', help='resume from checkpoint')
-parser.add_argument('--dataset', type=str, default='cifar100', help='cifar10 | cifar100 | folder')
-parser.add_argument('--dataroot', type=str, default='./data', help='path to dataset')
+# parser.add_argument('--dataset', type=str, default='cifar100', help='cifar10 | cifar100 | folder')
+# parser.add_argument('--dataroot', type=str, default='./data', help='path to dataset')
 parser.add_argument('--model', type=str, help='Which model to run')
 parser.add_argument('--workers', type=int, default=2, help='number of data loading workers')
 parser.add_argument('--batchSize', type=int, default=16, help='input batch size')
@@ -63,16 +61,23 @@ if device == 'cuda':
 
 if opt.resume:
     # Load checkpoint.
-    print('=====> Resuming from checkpoint......')
+    print('=====> Resuming from checkpoint <=======......')
     assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
     checkpoint = torch.load('./checkpoint/ckpt.pth')
     model.load_state_dict(checkpoint['net'])
     best_acc = checkpoint['acc']
     start_epoch = checkpoint['epoch']
 
-    
+classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=opt.lr, momentum=0.9, weight_decay=5e-4)
+
+# TODO: Edit to write for various experiment
+writer = SummaryWriter('runs/cifar10-grey')
+writer.add_graph(model) # write model architecture
+writer.close()
 
 
 # Training
@@ -91,6 +96,19 @@ def train(epoch):
         optimizer.step()
 
         train_loss += loss.item()
+
+        if batch_idx % 1000 == 999:  # every 1000 mini-batches...
+
+            # ...log the running loss
+            writer.add_scalar('training loss', train_loss / 1000, epoch * len(train_loader) + batch_idx)
+
+            # ...log a Matplotlib Figure showing the model's predictions on a
+            # random mini-batch
+            writer.add_figure('predictions vs. actuals',
+                              plot_classes_preds(model, inputs, targets, classes),
+                              global_step=epoch * len(train_loader) + batch_idx)
+            running_loss = 0.0
+
         _, predicted = outputs.max(1)
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
@@ -112,6 +130,16 @@ def test(epoch):
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
+            if batch_idx % 1000 == 999:  # every 1000 mini-batches...
+
+                # ...log the test loss
+                writer.add_scalar('test loss', test_loss / 1000, epoch * len(test_loader) + batch_idx)
+                # ...log a Matplotlib Figure showing the model's predictions on a
+                # random mini-batch
+                writer.add_figure('predictions vs. actuals',
+                                  plot_classes_preds(model, inputs, targets, classes),
+                                  global_step=epoch * len(test_loader) + batch_idx)
+                running_loss = 0.0
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
