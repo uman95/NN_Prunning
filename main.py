@@ -76,8 +76,8 @@ optimizer = optim.SGD(model.parameters(), lr=opt.lr, momentum=0.9, weight_decay=
 
 # TODO: Edit to write for various experiment
 writer = SummaryWriter('runs/cifar10-grey')
-writer.add_graph(model) # write model architecture
-writer.close()
+# writer.add_graph(model) # write model architecture
+# writer.close()
 
 
 # Training
