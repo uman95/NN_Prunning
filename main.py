@@ -78,6 +78,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=opt.lr, momentum=0.9, weight_decay=5e-4)
 
 # TODO: Edit to write for various experiment
+# writer_train = SummaryWriter('runs/cifar10-grey'+ opt.model+ 'train')
 writer = SummaryWriter('runs/cifar10-grey'+ opt.model)
 
 
@@ -101,18 +102,10 @@ def train(epoch):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
-        if batch_idx % 1000 == 999:  # every 1000 mini-batches...
-
-            # ...log the running loss
+        if batch_idx % 1000 == 999:
             writer.add_scalar('training loss', train_loss / 1000, epoch * len(train_loader) + batch_idx)
             writer.add_scalar('Training accuracy', 100. * correct / total, epoch * len(train_loader) + batch_idx)
 
-            # ...log a Matplotlib Figure showing the model's predictions on a
-            # random mini-batch
-            writer.add_figure('predictions vs. actuals',
-                              plot_classes_preds(model, inputs, targets, classes),
-                              global_step=epoch * len(train_loader) + batch_idx)
-        writer.flush()
         progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
@@ -135,17 +128,9 @@ def test(epoch):
             correct += predicted.eq(targets).sum().item()
 
             # ====> logging <=========
-            if batch_idx % 1000 == 999:  # every 1000 mini-batches...
-
-                # ...log the test loss
+            if batch_idx % 1000 ==999:
                 writer.add_scalar('test loss', test_loss / 1000, epoch * len(test_loader) + batch_idx)
                 writer.add_scalar('Test accuracy', 100.*correct/total, epoch * len(test_loader) + batch_idx)
-                # ...log a Matplotlib Figure showing the model's predictions on a
-                # random mini-batch
-                writer.add_figure('predictions vs. actuals',
-                                  plot_classes_preds(model, inputs, targets, classes),
-                                  global_step=epoch * len(test_loader) + batch_idx)
-            writer.flush()
 
             progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
