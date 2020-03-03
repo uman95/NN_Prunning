@@ -5,6 +5,7 @@ trainig Cifar-100 greayscale with Resnet18
 from pkgutil import get_loader
 
 from models.resnet import ResNet18, ResNet50
+from models.vgg import VGG
 from utils import *
 '''Train CIFAR10 with PyTorch.'''
 import torch
@@ -22,7 +23,7 @@ import argparse
 parser = argparse.ArgumentParser(description='PyTorch greyScale CIFAR100 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', default=False, action='store_true', help='resume from checkpoint')
-parser.add_argument('--model', required=True, type=str, help='Which model to run: ("resnet18" | "resnet50" ')
+parser.add_argument('--model', required=True, type=str, help='Which model to run: ("resnet18" | "resnet50" | VGG16')
 parser.add_argument('--workers', type=int, default=2, help='number of data loading workers')
 parser.add_argument('--batchSize', type=int, default=16, help='input batch size')
 parser.add_argument('--nEpochs', type=int, default=100, help='number of epochs to train for')
@@ -54,6 +55,10 @@ if opt.model == 'resnet18':
     model = ResNet18()
 elif opt.model == 'resnet50':
     model = ResNet50()
+elif opt.model == 'vgg16':
+    model = VGG('VGG16')
+else:
+    print(" Please specify the correct model name ")
 
 model = model.to(device)
 
