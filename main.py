@@ -128,9 +128,9 @@ def test(epoch):
             correct += predicted.eq(targets).sum().item()
 
             # ====> logging <=========
-            if batch_idx % 1000 ==999:
-                writer.add_scalar('test loss', test_loss / 1000, epoch * len(test_loader) + batch_idx)
-                writer.add_scalar('Test accuracy', 100.*correct/total, epoch * len(test_loader) + batch_idx)
+            #if batch_idx % 1000 ==999:
+            writer.add_scalar('test loss', test_loss, epoch * len(test_loader) + batch_idx)
+            writer.add_scalar('Test accuracy', 100.*correct/total, epoch * len(test_loader) + batch_idx)
 
             progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                 % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
