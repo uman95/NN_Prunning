@@ -1,7 +1,11 @@
 from __future__ import print_function
 import argparse
 
-parser = argparse.ArgumentParser(description='MobileNet PyTorch')
+parser = argparse.ArgumentParser(description='Baseline Models')
+parser.add_argument('--model', type=str, default='VGG16',
+                    help='Baseline Model to train: any of the following {MobileNet, VGG16, ResNet18, ResNet50}')
+parser.add_argument('--num_channel', type=int, default=3,
+                    help='Number of input channel (default: 3)')
 parser.add_argument('--batch_size', type=int, default=1024,
                     help='training batch size (default: 1024)')
 parser.add_argument('--test_batch_size', type=int, default=256,

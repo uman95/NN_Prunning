@@ -1,6 +1,6 @@
-# MobileNet CIFAR10 PyTorch
+# Baseline Models
 
-MobileNet with CIFAR10 Implementation on PyTorch  
+Here we've considered 4 baseline models {'MobileNet', 'VGG16', 'ResNet18' and 'ResNet50'} implementation on PyTorch and train on .........  
 This Code is possible to resume and evaluate model on different GPUs or CPU environment from trained model checkpoint.  
 And you can train this model on multi-gpu.
 
@@ -15,7 +15,8 @@ And you can train this model on multi-gpu.
 ## Usage
 
 ```
-usage: main.py [-h] [--batch_size BATCH_SIZE]
+usage: main.py [-h] [--model BASELINE_MODEL] [--num_channel IN_CHANNEL]
+                [--batch_size BATCH_SIZE]
                [--test_batch_size TEST_BATCH_SIZE] [--epochs EPOCHS] [--lr LR]
                [--momentum MOMENTUM] [--weight-decay WEIGHT_DECAY]
                [--workers WORKERS] [--cuda] [--gpuids GPUIDS [GPUIDS ...]]
@@ -44,20 +45,20 @@ optional arguments:
 
 ### Training
 ```
-> python3 main.py --cuda --gpuids 0 1 2 3 --epochs 150
+> python3 main.py --model 'ResNet18' --num_channel 1 --cuda --gpuids 0 1 2 3 --epochs 150
 ```
 
 #### resume training
 ```
-> python3 main.py --cuda --gpuids 0 1 2 3 --ckpt ckpt_epoch_100.pth --resume
+> python3 main.py --model 'ResNet18' --num_channel 1 --cuda --gpuids 0 1 2 3 --ckpt ckpt_epoch_100.pth --resume
 ```
 
 ### Evaluation
 ```
-> python3 main.py --cuda --gpuids 0 1 2 3 --ckpt ckpt_epoch_150.pth --eval
+> python3 main.py --model 'ResNet18' --num_channel 1 --cuda --gpuids 0 1 2 3 --ckpt ckpt_epoch_150.pth --eval
 ```
 or
 ```
-> python3 main.py --cuda --gpuids 0 1 2 3 --ckpt ckpt_best.pth --eval
+> python3 main.py --model 'ResNet18' --num_channel 1 --cuda --gpuids 0 1 2 3 --ckpt ckpt_best.pth --eval
 ```
 

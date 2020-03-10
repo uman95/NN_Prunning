@@ -17,7 +17,10 @@ import torchvision
 import torchvision.transforms as transforms
 
 from mobilenet import MobileNet
+from vgg import VGG
+from resnet import ResNet18
 from config import cfg
+from model import Model 
 
 
 best_prec1 = 0
@@ -30,8 +33,7 @@ def main():
 
     if opt.cuda and not torch.cuda.is_available():
         raise Exception("No GPU found, please run without --cuda")
-
-    model = MobileNet()
+    model = Model()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=opt.lr,
             momentum=opt.momentum, weight_decay=opt.weight_decay, nesterov=True)
