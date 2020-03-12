@@ -1,7 +1,7 @@
-from mobilenet import MobileNet
-from vgg import VGG
-from resnet import ResNet18, ResNet50
-from config import cfg
+from .models.mobilenet import MobileNet
+from .models.vgg import VGG
+from .models.resnet import ResNet18, ResNet50
+from .config import cfg
 
 
 def Model():
@@ -12,5 +12,7 @@ def Model():
         return ResNet18(opt.num_channel)
     elif opt.model == 'ResNet50':
         return ResNet50(opt.num_channel)
+    elif opt.model == 'VGG16':
+        return VGG(opt.num_channel, 'VGG16')
     else:
-        return VGG(opt.num_channel)
+        return print("Please enter a valid Model") #VGG(opt.num_channel)

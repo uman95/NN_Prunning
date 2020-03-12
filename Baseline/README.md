@@ -4,14 +4,6 @@ Here we've considered 4 baseline models {'MobileNet', 'VGG16', 'ResNet18' and 'R
 This Code is possible to resume and evaluate model on different GPUs or CPU environment from trained model checkpoint.  
 And you can train this model on multi-gpu.
 
-## Requirements
-
-- `python3` (python 3.5+) (Because of using pathlib)
-- `tqdm`
-- `torch` (PyTorch 0.4.0+)
-- `torchvision`
-- `numpy`
-
 ## Usage
 
 ```
@@ -61,4 +53,8 @@ or
 ```
 > python3 main.py --model 'ResNet18' --num_channel 1 --cuda --gpuids 0 1 2 3 --ckpt ckpt_best.pth --eval
 ```
+
+### To Contribute:
+Make a pull request. 
+
 

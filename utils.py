@@ -15,7 +15,133 @@ import torch.nn.init as init
 import torch
 import torch.nn.functional as F
 import numpy as np
+import shutil
+import pathlib
+from tqdm import tqdm
+from os.path import join
 
+
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+
+def train(train_loader, model, criterion, optimizer, opt):
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
+
+    # switch to train mode
+    model.train()
+
+    for _, (input, target) in enumerate(tqdm(train_loader, dynamic_ncols=True, unit='batch')):
+        if opt.cuda:
+            target = target.cuda() # use of async=True is deprecated in cuda param.
+
+            input_var = torch.autograd.Variable(input)
+            target_var = torch.autograd.Variable(target)
+
+            # compute output
+            output = model(input_var)
+            loss = criterion(output, target_var)
+
+            # measure accuracy and record loss
+            prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+            losses.update(loss.item(), input.size(0))
+            top1.update(prec1.item(), input.size(0))
+            top5.update(prec5.item(), input.size(0))
+
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+        print(' * Training Prec@1 {top1.avg:.3f}\t Prec@5 {top5.avg:.3f}'.format(top1=top1, top5=top5))
+
+
+def validate(val_loader, model, criterion, opt):
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
+
+    # switch to evaluate mode
+    model.eval()
+
+    for _, (input, target) in enumerate(tqdm(val_loader, dynamic_ncols=True, unit='batch')):
+        if opt.cuda:
+            target = target.cuda() # use of async=True is deprecated in cuda param.
+
+            with torch.no_grad():
+                input_var = torch.autograd.Variable(input)
+                target_var = torch.autograd.Variable(target)
+
+            # compute output
+            output = model(input_var)
+            loss = criterion(output, target_var)
+
+            # measure accuracy and record loss
+            prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+            losses.update(loss.item(), input.size(0))
+            top1.update(prec1.item(), input.size(0))
+            top5.update(prec5.item(), input.size(0))
+
+        print(' * Prec@1 {top1.avg:.3f}\t Prec@5 {top5.avg:.3f}'.format(top1=top1, top5=top5))
+
+    return top1.avg
+
+
+def save_model(state, epoch, is_best):
+    dir_path = "model"
+    pathlib.Path(dir_path).mkdir(exist_ok=True)
+
+    model_file = join(dir_path, "ckpt_epoch_{}.pth".format(epoch))
+
+    if is_best:
+        shutil.rmtree("model")
+        pathlib.Path(dir_path).mkdir(exist_ok=True)
+
+        torch.save(state, model_file)
+        shutil.copyfile(model_file, 'model/ckpt_best.pth')
+    else:
+        torch.save(state, model_file)
+
+
+def adjust_learning_rate(optimizer, epoch, opt):
+    """Sets the learning rate to the initial LR decayed by 10 every 50 epochs"""
+    lr = opt.lr * (0.1 ** (epoch // 50))
+    # lr = opt.lr * (0.98 ** epoch)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
+def accuracy(output, target, topk=(1,)):
+    """Computes the precision@k for the specified values of k"""
+    maxk = max(topk)
+    batch_size = target.size(0)
+
+    _, pred = output.topk(maxk, 1, True, True)
+    pred = pred.t()
+    correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+    res = []
+    for k in topk:
+        correct_k = correct[:k].view(-1).float().sum(0)
+        res.append(correct_k.mul_(100.0 / batch_size))
+
+    return res
 
 
 def get_mean_and_std(dataset):
