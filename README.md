@@ -10,8 +10,8 @@ Install the requirements:
 pip3 install -r requirements.txt 
 ```
 
-To Run a baseline model check Baseline/Readme file
+To Run a baseline model for channel==3 i.e RGB
 ```bash
-cd Baseline/
-python3 main.py --options  
+python3 main_train.py --model 'ResNet34' --num_channel 3 --epochs 1 --data cifar10
+
 ```
