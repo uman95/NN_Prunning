@@ -33,7 +33,7 @@ def get_dataloader(opt):
 
     elif opt.data == 'imagenet':
         train_dataset = datasets.ImageNet(root='./data', train=True, download=True, transform=transform_train)
-        val_dataset = datasets.ImageNet(root='./data', train=True, download=True, transform=transform_train)
+        val_dataset = datasets.ImageNet(root='./data', train=False, download=True, transform=transform_train)
     else:
         print(" Enter a valid dataset")
 
