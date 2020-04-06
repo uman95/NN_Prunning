@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 
-from Baseline.data import get_dataloader
+from data import get_dataloader
 from utils import adjust_learning_rate, train, validate, save_model
 from .config import cfg
 from .model import Model
