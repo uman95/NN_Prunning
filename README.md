@@ -8,7 +8,7 @@ Install the requirements:
 pip3 install -r requirements.txt 
 ```
 
-To Run the baseline models check Baseline/Readme file
+To Run a baseline model check Baseline/Readme file
 ```bash
 cd Baseline/
 python3 main.py --options  

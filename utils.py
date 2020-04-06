@@ -131,9 +131,9 @@ def save_model(state, epoch, is_best):
         torch.save(state, model_file)
 
 
-def adjust_learning_rate(optimizer, epoch, opt):
+def adjust_learning_rate(optimizer, epoch, lr):
     """Sets the learning rate to the initial LR decayed by 10 every 50 epochs"""
-    lr = opt.lr * (0.1 ** (epoch // 50))
+    lr = lr * (0.1 ** (epoch // 50))
     # lr = opt.lr * (0.98 ** epoch)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr

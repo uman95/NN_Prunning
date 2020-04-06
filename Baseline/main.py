@@ -131,7 +131,7 @@ def main():
     train_time = 0.0
     validate_time = 0.0
     for epoch in range(start_epoch, opt.epochs):
-        adjust_learning_rate(optimizer, epoch)
+        adjust_learning_rate(optimizer, epoch, opt.lr)
 
         print('\n==> Epoch: {}, lr = {}'.format(epoch, optimizer.param_groups[0]["lr"]))
 
@@ -166,9 +166,3 @@ def main():
     print("====> validation time: {}m {:.2f}s".format(int(validate_time//60), validate_time%60))
     print("====> total training time: {}m {:.2f}s".format(int(total_train_time//60), total_train_time%60))
 
-
-if __name__ == '__main__':
-    start_time = time.time()
-    main()
-    elapsed_time = time.time() - start_time
-    print("====> total time: {}m {:.2f}s".format(elapsed_time//60, elapsed_time%60))
