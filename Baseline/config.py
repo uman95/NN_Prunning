@@ -20,7 +20,7 @@ parser.add_argument('--momentum', default=0.9,
                     type=float, help='SGD Momentum (Default: 0.9)')
 parser.add_argument('--weight-decay', '--wd', default=5e-4,
                     type=float, help='Weight decay (Default: 5e-4)')
-parser.add_argument('--workers', type=int, default=16,
+parser.add_argument('--workers', type=int, default=1,
                     help='number of data loading workers (default: 16)')
 parser.add_argument('--cuda', action='store_true', help='use cuda?')
 parser.add_argument('--gpuids', default=[0], nargs='+',

@@ -91,7 +91,7 @@ def validate(val_loader, model, criterion, print_freq=10):
 
         # compute output
         output = model(input_var)
-        loss = criterion(output, target_var)
+        loss = criterion(output, target_var).cuda()
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
@@ -112,7 +112,7 @@ def validate(val_loader, model, criterion, print_freq=10):
                 i, len(val_loader), batch_time=batch_time, loss=losses,
                 top1=top1, top5=top5))
 
-    return top1.avg, top5.avg
+    return top1.avg#, top5.avg
 
 
 def save_model(state, epoch, is_best):

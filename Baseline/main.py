@@ -146,12 +146,13 @@ def main():
         # evaluate on validation set
         print("===> [ Validation ]")
         start_time = time.time()
-        prec1 = validate(val_loader, model, criterion, opt)
+        prec1 = validate(val_loader, model, criterion, print_freq=10)
         elapsed_time = time.time() - start_time
         validate_time += elapsed_time
         print("====> {:.2f} seconds to validate this epoch\n".format(elapsed_time))
 
         # remember best prec@1 and save checkpoint
+        print(best_prec1,prec1)
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
         state = {'epoch': epoch + 1, 'model': model.state_dict(), 'optimizer': optimizer.state_dict()}
