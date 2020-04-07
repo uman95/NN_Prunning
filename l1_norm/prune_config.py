@@ -5,10 +5,10 @@ parser = argparse.ArgumentParser(description='Pruning filters for efficient Conv
 parser.add_argument('--model', typ=str, default='ResNet34',
                     help='Model to prune: "ResNet34"|"ResNet50"|"MobileNet"')
 parser.add_argument('--data', type=str, default='',
-                    help='Path to imagenet validation data')
+                    help='Path to data validation data')
 parser.add_argument('--test-batch-size', type=int, default=64, metavar='N',
                     help='input batch size for testing (default: 64)')
-parser.add_argument('--in_channel', type=int, default=3,
+parser.add_argument('--num_channel', type=int, default=3,
                     help='input channel (grey scale or RGB) default=3')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')

@@ -4,8 +4,9 @@ import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
-from torchvision import datasets, transforms
+import torchvision
 
+from Baseline.data import get_dataloader
 from Baseline.models.resnet import ResNet34
 from utils import validate
 from l1_norm.prune_config import args
@@ -17,23 +18,14 @@ if not os.path.exists(args.save):
     os.makedirs(args.save)
 
 
-model = ResNet34(in_channel=3)
+# model = ResNet34(args.num_channel)
+model = torchvision.models.resnet34(pretrained=True)
 model = torch.nn.DataParallel(model).cuda()
 cudnn.benchmark = True
 
 print('Pre-processing Successful!')
 
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
-val_loader = torch.utils.data.DataLoader(
-    datasets.ImageFolder(os.path.join(args.data,'val'), transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        normalize,
-    ])),
-    batch_size=args.test_batch_size, shuffle=False,
-    num_workers=args.workers, pin_memory=True)
+_, val_loader = get_dataloader(args)
 
 criterion = nn.CrossEntropyLoss().cuda()
 
@@ -150,9 +142,9 @@ new_acc_top1, new_acc_top5 = validate(val_loader, newmodel, criterion, print_fre
 num_parameters1 = sum([param.nelement() for param in model.parameters()])
 num_parameters2 = sum([param.nelement() for param in newmodel.parameters()])
 
-# TODO: Check if saving report saves for each model or it overwrites the file.
-
-with open(os.path.join(args.save, "prune.txt"), "w") as fp:
+## Making sure to save text file per model.
+text_file = args.model + "_prune.txt"
+with open(os.path.join(args.save, text_file), "w") as fp:
     fp.write("Before pruning: "+"\n")
     fp.write("acc@1: "+str(acc_top1)+"\n"+"acc@5: "+str(acc_top5)+"\n")
     fp.write("Number of parameters: \n"+str(num_parameters1)+"\n")

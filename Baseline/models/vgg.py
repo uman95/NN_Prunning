@@ -39,9 +39,9 @@ class VGG(nn.Module):
 
 
 def test():
-    net = VGG(in_channel, 'VGG11')
-    x = torch.randn(2,1,32,32)
+    net = VGG(in_channel=3,vgg_name='VGG11')
+    x = torch.randn(2,3,32,32)
     y = net(x)
     print(y.size())
 
-#test()
+test()

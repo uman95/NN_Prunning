@@ -113,10 +113,10 @@ def ResNet152(in_channel=3):
     return ResNet(in_channel, Bottleneck, [3,8,36,3])
 
 
-def test():
-    net = ResNet50(in_channel)
-    y = net(torch.randn(1,1,32,32))
-    print(net)
-    print(y.size()) ## Output is [1,10]
+# def test():
+#     net = ResNet50(in_channel)
+#     y = net(torch.randn(1,1,32,32))
+#     print(net)
+#     print(y.size()) ## Output is [1,10]
 
 #test()
