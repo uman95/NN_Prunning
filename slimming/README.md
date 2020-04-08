@@ -8,11 +8,11 @@ We introduce `channel selection` layer to help the  pruning of ResNet and DenseN
 ## Baseline 
 
 The `dataset` argument specifies which dataset to use: `cifar10` or `cifar100`. The `arch` argument specifies the architecture to use: `vgg`,`resnet` or
-`densenet`. The depth is chosen to be the same as the networks used in the paper.
+`densenet`. The depth is chosen to be the same as the networks used in the paper. The 3 commands to run are these.
 ```shell
-python main.py --dataset cifar10 --arch vgg --depth 19
-python main.py --dataset cifar10 --arch resnet --depth 164
-python main.py --dataset cifar10 --arch densenet --depth 40
+python main.py --dataset cifar10 --num_channel 3 (or 1) --save ./logs/vgg/rgb (grey) --arch vgg --depth 19
+python main.py --dataset cifar10 --num_channel 3 (or 1) --save ./logs/resnet/rgb (grey) --arch resnet --depth 164
+python main.py --dataset cifar10 --num_channel 3 (or 1) --save ./logs/densenet/rgb (grey) --arch densenet --depth 40
 ```
 
 ## Train with Sparsity
@@ -26,9 +26,9 @@ python main.py -sr --s 0.00001 --dataset cifar10 --arch densenet --depth 40
 ## Prune
 
 ```shell
-python vggprune.py --dataset cifar10 --num_channel 3 --depth 19 --percent 0.7 --model [PATH TO THE MODEL] --save [DIRECTORY TO STORE RESULT]
-python resprune.py --dataset cifar10 --num_channel 3 --depth 164 --percent 0.4 --model [PATH TO THE MODEL] --save [DIRECTORY TO STORE RESULT]
-python denseprune.py --dataset cifar10 --num_channel 3 --depth 40 --percent 0.4 --model [PATH TO THE MODEL] --save [DIRECTORY TO STORE RESULT]
+python vggprune.py --dataset cifar10 --num_channel 3 (1) --depth 19 --percent 0.7 --model logs/vgg/rgb (grey) --save pruned_models/vgg/rgb (grey)
+python resprune.py --dataset cifar10 --num_channel 3 --depth 164 --percent 0.4 --model logs/resnet/rgb (grey) --save pruned_models/resnet/rgb (grey)
+python denseprune.py --dataset cifar10 --num_channel 3 --depth 40 --percent 0.4 --model logs/resnet/rgb (grey) --save pruned_models/densenet/rgb (grey)
 ```
 The pruned model will be named `pruned.pth.tar`.
 
