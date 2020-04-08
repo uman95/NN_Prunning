@@ -29,19 +29,19 @@ parser.add_argument('--model', default='', type=str, metavar='PATH',
 parser.add_argument('--save', default='', type=str, metavar='PATH',
                     help='path to save pruned model (default: none)')
 args = parser.parse_args()
-args.cuda = not args.no_cuda and torch.cuda.is_available()
+# args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 if not os.path.exists(args.save):
     os.makedirs(args.save)
 
-model = vgg(dataset=args.dataset, depth=args.depth)
-if args.cuda:
-    model.cuda()
+model = vgg(in_channel=args.num_channel, dataset=args.dataset, depth=args.depth)
+# if args.cuda:
+#     model.cuda()
 
 if args.model:
     if os.path.isfile(args.model):
         print("=> loading checkpoint '{}'".format(args.model))
-        checkpoint = torch.load(args.model)
+        checkpoint = torch.load(args.model, map_location=torch.device('cpu'))
         args.start_epoch = checkpoint['epoch']
         best_prec1 = checkpoint['best_prec1']
         model.load_state_dict(checkpoint['state_dict'])
@@ -74,7 +74,7 @@ cfg_mask = []
 for k, m in enumerate(model.modules()):
     if isinstance(m, nn.BatchNorm2d):
         weight_copy = m.weight.data.abs().clone()
-        mask = weight_copy.gt(thre).float().cuda()
+        mask = weight_copy.gt(thre).float()#.cuda()
         pruned = pruned + mask.shape[0] - torch.sum(mask)
         m.weight.data.mul_(mask)
         m.bias.data.mul_(mask)
@@ -91,8 +91,8 @@ print('Pre-processing Successful!')
 
 # simple test model after Pre-processing prune (simple set BN scales to zeros)
 def test(model):
-    kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-    kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+    # kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+    kwargs = {}
     if args.num_channel == 3:
         transform_val = transforms.Compose([
             transforms.ToTensor(),
@@ -105,18 +105,19 @@ def test(model):
             transforms.ToTensor(),
             transforms.Normalize((0.47336,), (0.2507,)),
         ])
+
     if args.dataset == 'cifar10':
         test_loader = DataLoader(datasets.CIFAR10(root='./data', train=False, download=True,
                                       transform=transform_val),
                                 batch_size=args.test_batch_size,
                                 shuffle=False,**kwargs)
     else:
-      print(" Enter a valid dataset")
+        print(" Enter a valid dataset")
     model.eval()
     correct = 0
     for data, target in test_loader:
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
+        # if args.cuda:
+        #     data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
@@ -130,9 +131,9 @@ acc = test(model)
 
 # Make real prune
 print(cfg)
-newmodel = vgg(dataset=args.dataset, cfg=cfg)
-if args.cuda:
-    newmodel.cuda()
+newmodel = vgg(in_channel=args.num_channel,dataset=args.dataset, cfg=cfg)
+# if args.cuda:
+#     newmodel.cuda()
 
 num_parameters = sum([param.nelement() for param in newmodel.parameters()])
 savepath = os.path.join(args.save, "prune.txt")
@@ -142,7 +143,7 @@ with open(savepath, "w") as fp:
     fp.write("Test accuracy: \n"+str(acc))
 
 layer_id_in_cfg = 0
-start_mask = torch.ones(3)
+start_mask = torch.ones(args.num_channel)
 end_mask = cfg_mask[layer_id_in_cfg]
 for [m0, m1] in zip(model.modules(), newmodel.modules()):
     if isinstance(m0, nn.BatchNorm2d):
