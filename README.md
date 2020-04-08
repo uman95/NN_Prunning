@@ -17,4 +17,6 @@ To Run a baseline model for channel==3 i.e RGB
 To run l1_norm
 ```bash
 ! python3 main_train.py --model 'VGG16' --num_channel 1 --model_path 'l1_norm/model/VGG16/grey' --gpuids 0 --epochs 20 --data cifar10 
+run vggprune
+!python l1_norm/vggprune.py --num_channel 1 --dataset cifar10 --model l1_norm/model/VGG16/grey/chpt_est.pth --save l1_norm/prune/vgg/grey
 ```
