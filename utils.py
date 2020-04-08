@@ -49,7 +49,7 @@ def train(train_loader, model, criterion, optimizer, opt):
 
     for _, (input, target) in enumerate(tqdm(train_loader, dynamic_ncols=True, unit='batch')):
         if opt.cuda:
-            target = target.cuda() # use of async=True is deprecated in cuda param.
+            target = target#.cuda() # use of async=True is deprecated in cuda param.
 
             input_var = torch.autograd.Variable(input)
             target_var = torch.autograd.Variable(target)
@@ -83,7 +83,7 @@ def validate(val_loader, model, criterion, print_freq=10):
     end = time.time()
     for i, (input, target) in enumerate(tqdm(val_loader, dynamic_ncols=True, unit='batch')):
 
-        target = target.cuda() # use of async=True is deprecated in cuda param.
+        target = target#.cuda() # use of async=True is deprecated in cuda param.
 
         with torch.no_grad():
             input_var = torch.autograd.Variable(input)
@@ -91,7 +91,7 @@ def validate(val_loader, model, criterion, print_freq=10):
 
         # compute output
         output = model(input_var)
-        loss = criterion(output, target_var).cuda()
+        loss = criterion(output, target_var)#.cuda()
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
@@ -115,20 +115,36 @@ def validate(val_loader, model, criterion, print_freq=10):
     return top1.avg#, top5.avg
 
 
-def save_model(state, epoch, is_best):
-    dir_path = "model"
+def save_model(dir_path,state, epoch, is_best):
+    #dir_path = model/model_name/image_type
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
     pathlib.Path(dir_path).mkdir(exist_ok=True)
 
     model_file = join(dir_path, "ckpt_epoch_{}.pth".format(epoch))
-
+    #torch.save(state, os.path.join(filepath, 'checkpoint.pth.tar'))
+    torch.save(state, model_file)
     if is_best:
-        shutil.rmtree("model")
-        pathlib.Path(dir_path).mkdir(exist_ok=True)
+        shutil.copyfile(model_file, os.path.join(dir_path,'ckpt_best.pth'))
 
-        torch.save(state, model_file)
-        shutil.copyfile(model_file, 'model/ckpt_best.pth')
-    else:
-        torch.save(state, model_file)
+    
+    
+#     dir_path = "model/" + model_name
+#     if not os.path.exists(dir_path):
+#         os.makedirs(dir_path)
+#     pathlib.Path(dir_path).mkdir(exist_ok=True)
+
+#     model_file = join(dir_path, "ckpt_epoch_{}.pth".format(epoch))
+
+#     if is_best:
+# #         'shutil.copyfile( os.path.join(model_file, 'ckpt_best.pth'))
+#         shutil.rmtree(dir_path)
+#         pathlib.Path(dir_path).mkdir(exist_ok=True)
+
+#         torch.save(state, model_file)
+#         shutil.copyfile(model_file, 'ckpt_best.pth')
+#     else:
+#         torch.save(state, model_file)
 
 
 def adjust_learning_rate(optimizer, epoch, lr):

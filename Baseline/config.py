@@ -4,6 +4,8 @@ import argparse
 parser = argparse.ArgumentParser(description='Baseline Models')
 parser.add_argument('--model', type=str, default='VGG16',
                     help='Baseline Model to train: any of the following {MobileNet, VGG16, ResNet18, ResNet50}')
+parser.add_argument('--image', type=str, default='RGB',
+                    help='type of image we use')
 parser.add_argument('--num_channel', type=int, default=3,
                     help='Number of input channel (default: 3)')
 parser.add_argument('--data', type=str, default='imagenet',
@@ -25,6 +27,8 @@ parser.add_argument('--workers', type=int, default=1,
 parser.add_argument('--cuda', action='store_true', help='use cuda?')
 parser.add_argument('--gpuids', default=[0], nargs='+',
                     help='GPU IDs for using (Default: 0)')
+parser.add_argument('--model_path',default='', type=str, metavar='PATH',
+                    help='ath of model for RGB and grey images')
 parser.add_argument('--ckpt', default='', type=str, metavar='PATH',
                     help='path of checkpoint for resuming/testing model (Default: none)')
 parser.add_argument('--resume', action='store_true', help='resume model?')

@@ -155,8 +155,8 @@ def main():
         print(best_prec1,prec1)
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
-        state = {'epoch': epoch + 1, 'model': model.state_dict(), 'optimizer': optimizer.state_dict()}
-        save_model(state, epoch, is_best)
+        state = {'best_prec1':best_prec1,'epoch': epoch + 1, 'model': model.state_dict(), 'optimizer': optimizer.state_dict()}
+        save_model(opt.model_path,state, epoch, is_best)
     
     avg_train_time = train_time/opt.epochs
     avg_valid_time = validate_time/opt.epochs
