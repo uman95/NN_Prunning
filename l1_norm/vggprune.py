@@ -140,7 +140,7 @@ newmodel = vgg(in_channel = args.num_channel,dataset=args.dataset, cfg=cfg)
 if args.cuda:
     newmodel.cuda()
 
-start_mask = torch.ones(1)
+start_mask = torch.ones(args.num_channel)
 layer_id_in_cfg = 0
 end_mask = cfg_mask[layer_id_in_cfg]
 for [m0, m1] in zip(model.modules(), newmodel.modules()):
