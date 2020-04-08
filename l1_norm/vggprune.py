@@ -76,12 +76,21 @@ print('Pre-processing Successful!')
 def test(model):
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     if args.dataset == 'cifar10':
-        test_loader = torch.utils.data.DataLoader(
-                        datasets.CIFAR10('./data.cifar10', train=False,download=True, transform=transforms.Compose([
-               transforms.Grayscale(num_output_channels=1),
-        transforms.ToTensor(),
-        transforms.Normalize((0.47336,), (0.2507,))])),
-            batch_size=args.test_batch_size, shuffle=True, **kwargs)
+        if args.num_channel == 3:
+            test_loader = torch.utils.data.DataLoader(
+                           datasets.CIFAR10('./data.cifar10', train=False,
+                           download=True, transform=transforms.Compose([transforms.ToTensor(),
+                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+                                ])),
+                batch_size=args.test_batch_size, shuffle=True, **kwargs)
+        else:
+            test_loader = torch.utils.data.DataLoader(
+                            datasets.CIFAR10('./data.cifar10', train=False,
+                            download=True, transform=transforms.Compose([
+                           transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize((0.47336,), (0.2507,))])),
+                batch_size=args.test_batch_size, shuffle=True, **kwargs)
     else:
         raise ValueError("No valid dataset is given.")
     model.eval()
