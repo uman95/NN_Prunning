@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torchvision import datasets, transforms
-
+from torch.utils.data import DataLoader
 from models import *
 
 
@@ -14,6 +14,8 @@ from models import *
 parser = argparse.ArgumentParser(description='PyTorch Slimming CIFAR prune')
 parser.add_argument('--dataset', type=str, default='cifar100',
                     help='training dataset (default: cifar10)')
+parser.add_argument('--num_channel', type=int, default=3,
+                    help='Number of input channel (default: 3)')
 parser.add_argument('--test-batch-size', type=int, default=256, metavar='N',
                     help='input batch size for testing (default: 256)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -90,20 +92,26 @@ print('Pre-processing Successful!')
 # simple test model after Pre-processing prune (simple set BN scales to zeros)
 def test(model):
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-    if args.dataset == 'cifar10':
-        test_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR10('./data.cifar10', train=False, transform=transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))])),
-            batch_size=args.test_batch_size, shuffle=True, **kwargs)
-    elif args.dataset == 'cifar100':
-        test_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR100('./data.cifar100', train=False, transform=transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))])),
-            batch_size=args.test_batch_size, shuffle=True, **kwargs)
+    kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+    if args.num_channel == 3:
+        transform_val = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        ])
+
     else:
-        raise ValueError("No valid dataset is given.")
+        transform_val = transforms.Compose([
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize((0.47336,), (0.2507,)),
+        ])
+    if args.dataset == 'cifar10':
+        test_loader = DataLoader(datasets.CIFAR10(root='./data', train=False, download=True,
+                                      transform=transform_val),
+                                batch_size=args.test_batch_size,
+                                shuffle=False,**kwargs)
+    else:
+      print(" Enter a valid dataset")
     model.eval()
     correct = 0
     for data, target in test_loader:
