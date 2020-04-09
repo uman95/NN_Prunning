@@ -9,13 +9,17 @@ Install the requirements:
 ```bash
 pip3 install -r requirements.txt 
 ```
+FOR CIFAR DATASET
+To Run a baseline model for channel==3 
+RGB
+```bash
+!python3 main_train.py --model 'VGG16' --num_channel 3 --model_path 'l1_norm/model/VGG16/RGB' --gpuids 0 --epochs 20 --data cifar10 
+!python3 main_train.py --model 'ResNet50' --num_channel 3 --model_path 'l1_norm/model/ResNet50/RGB' --gpuids 0 --epochs 20 --data cifar10 
 
-To Run a baseline model for channel==3 i.e RGB
-```bash
-!python3 main_train.py --model 'ResNet34' --num_channel 1 --cuda --gpuids 0 --epochs 1 --data cifar10
 ```
-To run a baseline model for channel ==1 i.e grey
+grey
 ```bash
+! python3 main_train.py --model 'ResNet50' --num_channel 1 --model_path 'l1_norm/model/ResNet50/grey' --gpuids 0 --epochs 20 --data cifar10 
 ! python3 main_train.py --model 'VGG16' --num_channel 1 --model_path 'l1_norm/model/VGG16/grey' --gpuids 0 --epochs 20 --data cifar10 
 ```
 Prune l1_norm for grey image
