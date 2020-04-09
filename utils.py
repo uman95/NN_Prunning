@@ -71,7 +71,7 @@ def train(train_loader, model, criterion, optimizer, opt):
 
         print(' * Training Prec@1 {top1.avg:.3f}\t Prec@5 {top5.avg:.3f}'.format(top1=top1, top5=top5))
 
-def validate(val_loader, model, criterion, print_freq=10):
+def validate(val_loader, model, criterion, opt, print_freq=10):
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
