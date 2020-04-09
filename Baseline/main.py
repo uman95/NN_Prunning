@@ -146,7 +146,7 @@ def main():
         # evaluate on validation set
         print("===> [ Validation ]")
         start_time = time.time()
-        prec1 = validate(val_loader, model, criterion, print_freq=10)
+        prec1 = validate(val_loader, model, criterion, opt, print_freq=10)
         elapsed_time = time.time() - start_time
         validate_time += elapsed_time
         print("====> {:.2f} seconds to validate this epoch\n".format(elapsed_time))
