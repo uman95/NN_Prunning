@@ -56,6 +56,8 @@ parser.add_argument('--depth', default=19, type=int,
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
@@ -109,8 +111,11 @@ else:
 
 model = models.__dict__[args.arch](in_channel= args.num_channel,dataset=args.dataset, depth=args.depth)
 
-if args.cuda:
-    model.cuda()
+if torch.cuda.device_count() > 1:
+  print("Let's use", torch.cuda.device_count(), "GPUs!")
+  model = nn.DataParallel(model)
+
+model.to(device)
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
 
@@ -141,8 +146,7 @@ def train(epoch):
     avg_loss = 0.
     train_acc = 0.
     for batch_idx, (data, target) in enumerate(train_loader):
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
+        data, target = data.to(device), target.to(device)
         data, target = Variable(data), Variable(target)
         optimizer.zero_grad()
         output = model(data)
@@ -166,8 +170,7 @@ def test():
     test_loss = 0
     correct = 0
     for data, target in test_loader:
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
+        data, target = data.to(device), target.to(device)
         with torch.no_grad():
             data, target = Variable(data), Variable(target)
         output = model(data)
