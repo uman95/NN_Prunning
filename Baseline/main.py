@@ -35,7 +35,7 @@ def main():
                           nesterov=True)
     start_epoch = 0
 
-    ckpt_file = join("model", opt.ckpt)
+    ckpt_file = opt.ckpt#join("model", opt.ckpt)
 
     # Running o
     if opt.cuda:
