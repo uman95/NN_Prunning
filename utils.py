@@ -81,8 +81,9 @@ def validate(val_loader, model, criterion, print_freq=10):
     model.eval()
     end = time.time()
     for i, (input, target) in enumerate(tqdm(val_loader, dynamic_ncols=True, unit='batch')):
-
-        target = target#.cuda() # use of async=True is deprecated in cuda param.
+        if opt.cuda:
+            target = target.cuda() # use of async=True is deprecated in cuda param.
+            input = input.cuda()
 
         with torch.no_grad():
             input_var = torch.autograd.Variable(input)
@@ -90,7 +91,7 @@ def validate(val_loader, model, criterion, print_freq=10):
 
         # compute output
         output = model(input_var)
-        loss = criterion(output, target_var)#.cuda()
+        loss = criterion(output, target_var).cuda()
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
