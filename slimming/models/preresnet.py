@@ -52,6 +52,7 @@ class Bottleneck(nn.Module):
 
         return out
 
+
 class resnet(nn.Module):
     def __init__(self, in_channel=3, depth=164, dataset='cifar10', cfg=None):
         super(resnet, self).__init__()
@@ -108,7 +109,6 @@ class resnet(nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
-
         x = self.layer1(x)  # 32x32
         x = self.layer2(x)  # 16x16
         x = self.layer3(x)  # 8x8

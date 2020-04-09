@@ -54,9 +54,10 @@ class Transition(nn.Module):
         out = F.avg_pool2d(out, 2)
         return out
 
+
 class densenet(nn.Module):
 
-    def __init__(self, depth=40, dropRate=0, dataset='cifar10',
+    def __init__(self, in_channel=3,depth=40, dropRate=0, dataset='cifar10',
                  growthRate=12, compressionRate=1, cfg = None):
         super(densenet, self).__init__()
 
@@ -80,7 +81,7 @@ class densenet(nn.Module):
         # self.inplanes is a global variable used across multiple
         # helper functions
         self.inplanes = growthRate * 2
-        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=3, padding=1,
+        self.conv1 = nn.Conv2d(in_channel, self.inplanes, kernel_size=3, padding=1,
                                bias=False)
         self.dense1 = self._make_denseblock(block, n, cfg[0:n])
         self.trans1 = self._make_transition(compressionRate, cfg[n])
