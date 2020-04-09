@@ -36,7 +36,7 @@ def main():
     start_epoch = 0
 
     ckpt_file = opt.ckpt#join("model", opt.ckpt)
-
+    print(ckpt_file)
     # Running o
     if opt.cuda:
         torch.cuda.set_device(opt.gpuids[0])
