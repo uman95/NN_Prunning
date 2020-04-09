@@ -115,7 +115,7 @@ def main():
             # evaluate on validation set
             print("\n===> [ Evaluation ]")
             start_time = time.time()
-            prec1 = validate(val_loader, model, criterion)
+            prec1 = validate(val_loader, model, criterion, opt)
 
             # TODO: what happens to prec1
             # TODO: Tensoroard logging
