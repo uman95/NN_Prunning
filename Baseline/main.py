@@ -88,7 +88,7 @@ def main():
             if opt.cuda:
                 checkpoint = torch.load(ckpt_file, map_location=lambda storage, loc: storage.cuda(opt.gpuids[0]))
                 try:
-                    model.module.load_state_dict(checkpoint['model'])
+                    model.module.load_state_dict(checkpoint['model'],strict=False)
                 except:
                     model.load_state_dict(checkpoint['model'])
             else:
