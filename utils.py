@@ -49,28 +49,27 @@ def train(train_loader, model, criterion, optimizer, opt):
 
     for _, (input, target) in enumerate(tqdm(train_loader, dynamic_ncols=True, unit='batch')):
         if opt.cuda:
-            target = target#.cuda() # use of async=True is deprecated in cuda param.
+            target = target.cuda() # use of async=True is deprecated in cuda param.
+            input = input.cuda()
+        input_var = torch.autograd.Variable(input)
+        target_var = torch.autograd.Variable(target)
 
-            input_var = torch.autograd.Variable(input)
-            target_var = torch.autograd.Variable(target)
+        # compute output
+        output = model(input_var)
+        loss = criterion(output, target_var)
 
-            # compute output
-            output = model(input_var)
-            loss = criterion(output, target_var)
+        # measure accuracy and record loss
+        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
+        top5.update(prec5.item(), input.size(0))
 
-            # measure accuracy and record loss
-            prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-            losses.update(loss.item(), input.size(0))
-            top1.update(prec1.item(), input.size(0))
-            top5.update(prec5.item(), input.size(0))
-
-            # compute gradient and do SGD step
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        # compute gradient and do SGD step
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
         print(' * Training Prec@1 {top1.avg:.3f}\t Prec@5 {top5.avg:.3f}'.format(top1=top1, top5=top5))
-
 
 def validate(val_loader, model, criterion, print_freq=10):
     batch_time = AverageMeter()
