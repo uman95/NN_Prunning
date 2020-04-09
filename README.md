@@ -19,16 +19,23 @@ RGB
 !python3 main_train.py --model 'ResNet50' --num_channel 3 --model_path 'l1_norm/model/ResNet50/RGB' --gpuids 0 --epochs 20 --data cifar10 
 
 ```
-grey
+GREY
 ```bash
 ! python3 main_train.py --model 'ResNet50' --num_channel 1 --model_path 'l1_norm/model/ResNet50/grey' --gpuids 0 --epochs 20 --data cifar10 
 ! python3 main_train.py --model 'VGG16' --num_channel 1 --model_path 'l1_norm/model/VGG16/grey' --gpuids 0 --epochs 20 --data cifar10 
 ```
 Run Prune l1_norm 
 
-grey image
+RGB
 ```bash
 !python l1_norm/resnetprune.py --num_channel 3 --dataset cifar10 --model l1_norm/model/resnet/RGB/ckpt_best.pth --save l1_norm/prune/resnset/RGB
+!python l1_norm/vggprune.py --num_channel 3 --dataset cifar10 --model l1_norm/model/VGG16/RGB/ckpt_best.pth --save l1_norm/prune/vgg/RGB
+
+```
+
+GREY
+```bash
+!python l1_norm/resnetprune.py --num_channel 1 --dataset cifar10 --model l1_norm/model/resnet/grey/ckpt_best.pth --save l1_norm/prune/resnset/grey
 !python l1_norm/vggprune.py --num_channel 1 --dataset cifar10 --model l1_norm/model/VGG16/grey/ckpt_best.pth --save l1_norm/prune/vgg/grey
 
 ```
