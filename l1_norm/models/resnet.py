@@ -61,7 +61,7 @@ def downsample_basic_block(x, planes):
 
 class ResNet(nn.Module):
 
-    def __init__(self, depth, dataset='cifar10', cfg=None):
+    def __init__(self,num_channel, depth, dataset='cifar10', cfg=None):
         super(ResNet, self).__init__()
         # Model type specifies number of layers for CIFAR-10 model
         assert (depth - 2) % 6 == 0, 'depth should be 6n+2'
@@ -75,7 +75,7 @@ class ResNet(nn.Module):
         self.cfg = cfg
 
         self.inplanes = 16
-        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1,
+        self.conv1 = nn.Conv2d(num_channel, 16, kernel_size=3, padding=1,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(16)
         self.relu = nn.ReLU(inplace=True)
