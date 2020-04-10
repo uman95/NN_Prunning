@@ -153,7 +153,7 @@ num_parameters = sum([param.nelement() for param in newmodel.parameters()])
 savepath = os.path.join(args.save, "prune.txt")
 with open(savepath, "w") as fp:
     fp.write("Configuration: \n"+str(cfg)+"\n")
-    fp.write("Number of parameters: \n"+str(num_parameters)+"\n")
+    fp.write("Number of parameters new model: \n"+str(num_parameters)+"\n")
     fp.write("Test accuracy: \n"+str(acc))
 
 layer_id_in_cfg = 0
