@@ -18,6 +18,8 @@ import models
 parser = argparse.ArgumentParser(description='PyTorch Slimming CIFAR training')
 parser.add_argument('--dataset', type=str, default='cifar10',
                     help='training dataset (default: cifar10)')
+parser.add_argument('--num_channel', type=int, default=3,
+                    help='Number of input channel (default: 3)')
 parser.add_argument('--refine', default='', type=str, metavar='PATH',
                     help='path to the pruned model to be fine tuned')
 parser.add_argument('--batch-size', type=int, default=64, metavar='N',
