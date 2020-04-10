@@ -49,11 +49,13 @@ if args.model:
         state_dict =checkpoint['state_dict']
         new_state_dict = OrderedDict()
         for k, v in state_dict.items():
-            if 'module' not in k:
-                k = 'module.'+k
-            else:
-                k = k.replace('features.module.', 'module.features.')
-            new_state_dict[k]=v
+          name = k[7:]
+          new_state_dict[name]=v
+#             if 'module' not in k:
+#                 k = 'module.'+k
+#             else:
+#                 k = k.replace('features.module.', 'module.features.')
+#            new_state_dict[k]=v
         model.load_state_dict(new_state_dict)
         
         print("=> loaded checkpoint '{}' (epoch {}) Prec1: {:f}"
