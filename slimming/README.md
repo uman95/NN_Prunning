@@ -39,7 +39,7 @@ The pruned model will be named `pruned.pth.tar`.
 ## Fine-tune
 
 ```shell
-python main_finetune.py --refine [PATH TO THE PRUNED MODEL] --dataset cifar10 --arch vgg --depth 19
+python main_finetune.py -- num_channel 3 (or 1) --refine pruned_models/vgg/rgb (grey)/pruned.pth.tar --dataset cifar10 --arch vgg --depth 19 --save finetune_models/vgg/rgb (grey)
 python main_finetune.py --refine [PATH TO THE PRUNED MODEL] --dataset cifar10 --arch resnet --depth 164
 python main_finetune.py --refine [PATH TO THE PRUNED MODEL] --dataset cifar10 --arch densenet --depth 40
 ```
