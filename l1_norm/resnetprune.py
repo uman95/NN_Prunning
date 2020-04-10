@@ -35,7 +35,7 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 if not os.path.exists(args.save):
     os.makedirs(args.save)
 
-model = ResNet50(args.num_channel)
+model = resnet(args.num_channel,depth=args.depth, dataset=args.dataset)#ResNet50(args.num_channel)
 
 if args.cuda:
     model.cuda()
