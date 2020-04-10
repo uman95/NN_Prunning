@@ -62,7 +62,7 @@ if not os.path.exists(args.save):
     os.makedirs(args.save)
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-if opt.num_channel == 3:
+if args.num_channel == 3:
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -94,13 +94,13 @@ else:
         #         transforms.Lambda(lambda x: x.unsqueeze(dim=0)),
     ])
 
-if opt.data == 'cifar10':
+if args.data == 'cifar10':
     train_dataset = datasets.CIFAR10(root='./data', train=True, download=True,
      transform=transform_train)
     val_dataset = datasets.CIFAR10(root='./data', train=False, download=True,
      transform=transform_val)
 
-elif opt.data == 'imagenet':
+elif args.data == 'imagenet':
     train_dataset = datasets.ImageNet(root='./data', train=True, download=True, transform=transform_train)
     val_dataset = datasets.ImageNet(root='./data', train=False, download=True, transform=transform_train)
 else:
