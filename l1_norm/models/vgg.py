@@ -15,14 +15,14 @@ defaultcfg = {
 }
 
 class vgg(nn.Module):
-    def __init__(self,in_channel=3, dataset='cifar10', depth=19, init_weights=True, cfg=None):
+    def __init__(self,num_channel=3, dataset='cifar10', depth=19, init_weights=True, cfg=None):
         super(vgg, self).__init__()
         if cfg is None:
             cfg = defaultcfg[depth]
 
         self.cfg = cfg
 
-        self.feature = self.make_layers(in_channel,cfg, True)
+        self.feature = self.make_layers(num_channel,cfg, True)
 
         if dataset == 'cifar10':
             num_classes = 10
@@ -37,19 +37,19 @@ class vgg(nn.Module):
         if init_weights:
             self._initialize_weights()
 
-    def make_layers(self,in_channels, cfg, batch_norm=False):
+    def make_layers(self,num_channel, cfg, batch_norm=False):
         layers = []
         #in_channels = 3
         for v in cfg:
             if v == 'M':
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
             else:
-                conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1, bias=False)
+                conv2d = nn.Conv2d(num_channel, v, kernel_size=3, padding=1, bias=False)
                 if batch_norm:
                     layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
                 else:
                     layers += [conv2d, nn.ReLU(inplace=True)]
-                in_channels = v
+                num_channel = v
         return nn.Sequential(*layers)
 
     def forward(self, x):
