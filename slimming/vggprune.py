@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from models import *
-
+from collections import OrderedDict
 
 # Prune settings
 parser = argparse.ArgumentParser(description='PyTorch Slimming CIFAR prune')
@@ -44,11 +44,23 @@ if args.model:
         checkpoint = torch.load(args.model, map_location=torch.device('cpu'))
         args.start_epoch = checkpoint['epoch']
         best_prec1 = checkpoint['best_prec1']
-        model.load_state_dict(checkpoint['state_dict'])
+        #model.load_state_dict(checkpoint['state_dict'])
+        # this part needed since we store our state using nn.DataParallel()
+        state_dict =checkpoint['state_dict']
+        new_state_dict = OrderedDict()
+        for k, v in state_dict.items():
+            if 'module' not in k:
+                k = 'module.'+k
+            else:
+                k = k.replace('features.module.', 'module.features.')
+            new_state_dict[k]=v
+        model.load_state_dict(new_state_dict)
+        
         print("=> loaded checkpoint '{}' (epoch {}) Prec1: {:f}"
               .format(args.model, checkpoint['epoch'], best_prec1))
     else:
         print("=> no checkpoint found at '{}'".format(args.resume))
+
 
 print(model)
 total = 0
