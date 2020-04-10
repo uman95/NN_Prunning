@@ -14,7 +14,9 @@ from models.resnet import *
 parser = argparse.ArgumentParser(description='PyTorch Slimming CIFAR prune')
 parser.add_argument('--dataset', type=str, default='cifar10',
                     help='training dataset (default: cifar10)')
-parser.add_argument('--test-batch-size', type=int, default=256, metavar='N',
+parser.add_argument('--num_channel', type=int, default=3,
+                    help='Number of input channel (default: 3)')
+parser.add_argument('--test-batch-size', type=int, default=64, metavar='N',
                     help='input batch size for testing (default: 256)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
@@ -35,7 +37,7 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 if not os.path.exists(args.save):
     os.makedirs(args.save)
 
-model = resnet(args.num_channel,depth=args.depth, dataset=args.dataset)#ResNet50(args.num_channel)
+model = resnet(num_channel=args.num_channel, depth=args.depth, dataset=args.dataset)#ResNet50(args.num_channel)
 
 if args.cuda:
     model.cuda()
