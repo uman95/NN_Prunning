@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from torchvision import datasets, transforms
 
 from models import *
-from models.resnet import *
+from models import *
 
 # Prune settings
 parser = argparse.ArgumentParser(description='PyTorch Slimming CIFAR prune')
