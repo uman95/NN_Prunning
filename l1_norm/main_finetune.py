@@ -114,11 +114,11 @@ test_loader = DataLoader(val_dataset,
                          shuffle=False,
                          num_workers=1)#opt.workers)
 
-model = models.__dict__[args.arch](dataset=args.dataset, depth=args.depth)
+model = models.__dict__[args.arch](args.num_channel,dataset=args.dataset, depth=args.depth)
 
 if args.refine:
     checkpoint = torch.load(args.refine)
-    model = models.__dict__[args.arch](dataset=args.dataset, depth=args.depth, cfg=checkpoint['cfg'])
+    model = models.__dict__[args.arch](args.num_channel,dataset=args.dataset, depth=args.depth, cfg=checkpoint['cfg'])
     model.load_state_dict(checkpoint['state_dict'])
 
 if args.cuda:
@@ -196,4 +196,4 @@ for epoch in range(args.start_epoch, args.epochs):
         'best_prec1': best_prec1,
         'optimizer': optimizer.state_dict(),
         'cfg': model.cfg
-}, is_best, filepath=args.save)
+    }, is_best, filepath=args.save)
