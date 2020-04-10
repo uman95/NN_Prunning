@@ -143,7 +143,7 @@ for m in model.modules():
             layer_id += 1
             continue
         layer_id += 1
-newmodel = resnet(num_channel=args.num_channel)#ResNet50(args.num_channel)
+newmodel = resnet(num_channel=args.num_channel, depth=args.depth, dataset=args.dataset)#ResNet50(args.num_channel)
 # newmodel = ResNet50(args.num_channel)#resnet(args.num_channel,depth=args.depth,dataset=args.dataset)
 if args.cuda:
     newmodel.cuda()
