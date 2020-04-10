@@ -38,7 +38,7 @@ if not os.path.exists(args.save):
     os.makedirs(args.save)
 
 #model = vgg(dataset=args.dataset, depth=args.depth)
-model = vgg(in_channel = args.num_channel,dataset=args.dataset,depth= args.depth)
+model = vgg(num_channel = args.num_channel,dataset=args.dataset,depth= args.depth)
 #ckpt_file = join(args.model)
 
 if args.cuda:
@@ -136,7 +136,7 @@ for m in model.modules():
         layer_id += 1
 
 
-newmodel = vgg(in_channel = args.num_channel,dataset=args.dataset, cfg=cfg)
+newmodel = vgg(num_channel = args.num_channel,dataset=args.dataset, cfg=cfg)
 if args.cuda:
     newmodel.cuda()
 
