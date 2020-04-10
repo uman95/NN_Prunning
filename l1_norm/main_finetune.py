@@ -94,13 +94,13 @@ else:
         #         transforms.Lambda(lambda x: x.unsqueeze(dim=0)),
     ])
 
-if args.data == 'cifar10':
+if args.dataset == 'cifar10':
     train_dataset = datasets.CIFAR10(root='./data', train=True, download=True,
      transform=transform_train)
     val_dataset = datasets.CIFAR10(root='./data', train=False, download=True,
      transform=transform_val)
 
-elif args.data == 'imagenet':
+elif args.dataset == 'imagenet':
     train_dataset = datasets.ImageNet(root='./data', train=True, download=True, transform=transform_train)
     val_dataset = datasets.ImageNet(root='./data', train=False, download=True, transform=transform_train)
 else:
