@@ -132,7 +132,7 @@ def resnet(**kwargs):
     return ResNet(**kwargs)
 
 if __name__ == '__main__':
-    net = resnet(depth=50)
+    net = resnet(num_channel,depth=50)
     x=Variable(torch.FloatTensor(16, 3, 32, 32))
     y = net(x)
     print(y.data.shape)
