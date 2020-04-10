@@ -31,17 +31,12 @@ parser.add_argument('--save', default='', type=str, metavar='PATH',
 args = parser.parse_args()
 # args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 if not os.path.exists(args.save):
     os.makedirs(args.save)
 
 model = vgg(in_channel=args.num_channel, dataset=args.dataset, depth=args.depth)
-if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  model = nn.DataParallel(model)
-
-model.to(device)
+# if args.cuda:
+#     model.cuda()
 
 if args.model:
     if os.path.isfile(args.model):
@@ -121,9 +116,9 @@ def test(model):
     model.eval()
     correct = 0
     for data, target in test_loader:
-        data, target = data.to(device), target.to(device)
-        with torch.no_grad():
-            data, target = Variable(data), Variable(target)
+        # if args.cuda:
+        #     data, target = data.cuda(), target.cuda()
+        data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
