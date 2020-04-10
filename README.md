@@ -16,14 +16,14 @@ To Run a baseline model for channel==3
 RGB
 ```bash
 
-!python3 main_train.py --model 'ResNet50' --num_channel 3 --model_path 'l1_norm/model/ResNet50/RGB' --cuda --gpuids 0 1 --epochs 150 --data cifar10 
-!python3 main_train.py --model 'VGG16' --num_channel 3 --model_path 'l1_norm/model/VGG16/RGB' --cuda --gpuids 0 1 --epochs 150 --data cifar10 
+!python3 main_train.py --model 'ResNet50' --num_channel 3 --model_path 'l1_norm/model/ResNet50/RGB' --cuda --gpuids 0 1 --epochs 150 --data cifar10 --batch_size 128
+!python3 main_train.py --model 'VGG16' --num_channel 3 --model_path 'l1_norm/model/VGG16/RGB' --cuda --gpuids 0 1 --epochs 150 --data cifar10 --batch_size 128
 
 ```
 GREY
 ```bash
-! python3 main_train.py --model 'ResNet50' --num_channel 1 --model_path 'l1_norm/model/ResNet50/grey' --cuda --gpuids 0 1 --epochs 150 --data cifar10 
-! python3 main_train.py --model 'VGG16' --num_channel 1 --model_path 'l1_norm/model/VGG16/grey' --cuda --gpuids 0 1 --epochs 150 --data cifar10 
+! python3 main_train.py --model 'ResNet50' --num_channel 1 --model_path 'l1_norm/model/ResNet50/grey' --cuda --gpuids 0 1 --epochs 150 --data cifar10 --batch_size 128
+! python3 main_train.py --model 'VGG16' --num_channel 1 --model_path 'l1_norm/model/VGG16/grey' --cuda --gpuids 0 1 --epochs 150 --data cifar10 --batch_size 128
 ```
 Run Prune l1_norm 
 
