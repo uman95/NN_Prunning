@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 
@@ -17,6 +18,8 @@ import models
 parser = argparse.ArgumentParser(description='PyTorch Slimming CIFAR training')
 parser.add_argument('--dataset', type=str, default='cifar10',
                     help='training dataset (default: cifar100)')
+parser.add_argument('--num_channel', type=int, default=3,
+                    help='Number of input channel (default: 3)')
 parser.add_argument('--sparsity-regularization', '-sr', dest='sr', action='store_true',
                     help='train with channel sparsity regularization')
 parser.add_argument('--s', type=float, default=0.0001,
@@ -55,6 +58,8 @@ parser.add_argument('--depth', default=19, type=int,
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
@@ -63,48 +68,61 @@ if not os.path.exists(args.save):
     os.makedirs(args.save)
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-if args.dataset == 'cifar10':
-    train_loader = torch.utils.data.DataLoader(
-        datasets.CIFAR10('./data.cifar10', train=True, download=True,
-                       transform=transforms.Compose([
-                           transforms.Pad(4),
-                           transforms.RandomCrop(32),
-                           transforms.RandomHorizontalFlip(),
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-                       ])),
-        batch_size=args.batch_size, shuffle=True, **kwargs)
-    test_loader = torch.utils.data.DataLoader(
-        datasets.CIFAR10('./data.cifar10', train=False, transform=transforms.Compose([
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-                       ])),
-        batch_size=args.test_batch_size, shuffle=True, **kwargs)
+
+if args.num_channel == 3:
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
+    transform_val = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
 else:
-    train_loader = torch.utils.data.DataLoader(
-        datasets.CIFAR100('./data.cifar100', train=True, download=True,
-                       transform=transforms.Compose([
-                           transforms.Pad(4),
-                           transforms.RandomCrop(32),
-                           transforms.RandomHorizontalFlip(),
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-                       ])),
-        batch_size=args.batch_size, shuffle=True, **kwargs)
-    test_loader = torch.utils.data.DataLoader(
-        datasets.CIFAR100('./data.cifar100', train=False, transform=transforms.Compose([
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-                       ])),
-        batch_size=args.test_batch_size, shuffle=True, **kwargs)
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.Grayscale(num_output_channels=1),
+        transforms.ToTensor(),
+        transforms.Normalize((0.47336,), (0.2507,)),
+        #         transforms.Lambda(lambda x: 0.2126 * x[0] + 0.7152 * x[1] + 0.0722 * x[2]),
+        #         transforms.Lambda(lambda x: x.unsqueeze(dim=0)),
+    ])
+
+    transform_val = transforms.Compose([
+        transforms.Grayscale(num_output_channels=1),
+        transforms.ToTensor(),
+        transforms.Normalize((0.47336,), (0.2507,)),
+    ])
+
+if args.dataset == 'cifar10':
+    train_loader = DataLoader(datasets.CIFAR10(root='./data', train=True, download=True,
+                                     transform=transform_train),
+                              batch_size=args.batch_size, shuffle=True,**kwargs)
+
+    test_loader = DataLoader(datasets.CIFAR10(root='./data', train=False, download=True,
+                                   transform=transform_val),
+                             batch_size=args.test_batch_size,
+                             shuffle=False,**kwargs)
+else:
+    print(" Enter a valid dataset")
 
 if args.refine:
     checkpoint = torch.load(args.refine)
-    model = models.__dict__[args.arch](dataset=args.dataset, depth=args.depth, cfg=checkpoint['cfg'])
+    model = models.__dict__[args.arch](in_channel=args.num_channel, dataset=args.dataset, depth=args.depth, cfg=checkpoint['cfg'])
     model.load_state_dict(checkpoint['state_dict'])
 
-if args.cuda:
-    model.cuda()
+#model = models.__dict__[args.arch](in_channel= args.num_channel,dataset=args.dataset, depth=args.depth)
+
+if torch.cuda.device_count() > 1:
+  print("Let's use", torch.cuda.device_count(), "GPUs!")
+  model = nn.DataParallel(model)
+
+model.to(device)
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
 
@@ -155,14 +173,15 @@ def train(epoch):
     history_score[epoch][0] = avg_loss / len(train_loader)
     history_score[epoch][1] = train_acc / float(len(train_loader))
 
+
 def test():
     model.eval()
     test_loss = 0
     correct = 0
     for data, target in test_loader:
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile=True), Variable(target)
+        data, target = data.to(device), target.to(device)
+        with torch.no_grad():
+            data, target = Variable(data), Variable(target)
         output = model(data)
         test_loss += F.cross_entropy(output, target, size_average=False).data[0] # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
@@ -174,10 +193,12 @@ def test():
         100. * correct / len(test_loader.dataset)))
     return correct / float(len(test_loader.dataset))
 
+
 def save_checkpoint(state, is_best, filepath):
     torch.save(state, os.path.join(filepath, 'checkpoint.pth.tar'))
     if is_best:
         shutil.copyfile(os.path.join(filepath, 'checkpoint.pth.tar'), os.path.join(filepath, 'model_best.pth.tar'))
+
 
 best_prec1 = 0.
 for epoch in range(args.start_epoch, args.epochs):
