@@ -22,8 +22,6 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 parser.add_argument('--depth', type=int, default=50,
                     help='depth of the resnet')
-parser.add_argument('--num_channel', type=int, default='RGB',
-                    help='number of channel')
 parser.add_argument('--model', default='', type=str, metavar='PATH',
                     help='path to the model (default: none)')
 parser.add_argument('--save', default='', type=str, metavar='PATH',
