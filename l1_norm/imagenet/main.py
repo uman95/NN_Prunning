@@ -76,7 +76,7 @@ def main():
     # create model
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
-        model = models.__dict__[args.arch](pretrained=True, num_channel = args.num_channel)
+        model = models.__dict__[args.arch](num_channel = args.num_channel,pretrained=True)
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch](args.num_channel)
