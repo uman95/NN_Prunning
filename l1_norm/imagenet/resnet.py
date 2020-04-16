@@ -153,7 +153,7 @@ class ResNet(nn.Module):
 
         return x
 
-def resnet34(pretrained=False, num_channel, **kwargs):
+def resnet34(num_channel, pretrained=False, **kwargs):
     """Constructs a ResNet-34 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
