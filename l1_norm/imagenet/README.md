@@ -8,7 +8,11 @@ We trained the Baseline models again
 ```
 RGB
 
-python3 main.py -a resnet34 --num_channel 3 --save [PATH TO SAVE RESULTS] [IMAGENET]
+python3 main.py -a resnet34 --num_channel 3 --save 'ImagNet/model/Resnet34/RGB' [IMAGENET]
+
+Greay
+
+python3 main.py -a resnet34 --num_channel 1 --save 'ImagNet/model/Resnet34/Greay'  [IMAGENET]
 ```
 
 ## Prune
