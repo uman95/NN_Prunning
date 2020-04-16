@@ -73,10 +73,10 @@ def main():
     
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     
-    torch.manual_seed(args.seed)
+    #torch.manual_seed(args.seed)
     
-    if args.cuda:
-        torch.cuda.manual_seed(args.seed)
+#     if args.cuda:
+#         torch.cuda.manual_seed(args.seed)
         
     args.distributed = args.world_size > 1
     
