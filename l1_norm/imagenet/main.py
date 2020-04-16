@@ -61,6 +61,8 @@ parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
+parser.add_argument('--gpuids', default=[0], nargs='+',
+                    help='GPU IDs for using (Default: 0)')
 parser.add_argument('--save', default='.', type=str, metavar='PATH',
                     help='path to save model (default: current directory)')
 
