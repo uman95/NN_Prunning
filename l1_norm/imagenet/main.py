@@ -238,9 +238,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
+        losses.update(loss.data[0], input.item())
+        top1.update(prec1[0], input.item())
+        top5.update(prec5[0], input.item())
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -284,9 +284,9 @@ def validate(val_loader, model, criterion):
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
+        losses.update(loss.data[0], input.item())
+        top1.update(prec1[0], input.item())
+        top5.update(prec5[0], input.item())
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -341,7 +341,7 @@ def adjust_learning_rate(optimizer, epoch):
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
-    batch_size = target.size(0)
+    batch_size = target.item()
 
     _, pred = output.topk(maxk, 1, True, True)
     pred = pred.t()
