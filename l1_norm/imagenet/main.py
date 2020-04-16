@@ -59,6 +59,8 @@ parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
                     help='url used to set up distributed training')
 parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
+parser.add_argument('--save', default='.', type=str, metavar='PATH',
+                    help='path to save model (default: current directory)')
 
 best_prec1 = 0
 
@@ -68,11 +70,14 @@ def main():
     args = parser.parse_args()
 
     args.distributed = args.world_size > 1
-
+    
+    if not os.path.exists(args.save):
+        os.makedirs(args.save)
+        
     if args.distributed:
         dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
                                 world_size=args.world_size)
-
+    
     # create model
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
@@ -204,7 +209,7 @@ def main():
             'state_dict': model.state_dict(),
             'best_prec1': best_prec1,
             'optimizer' : optimizer.state_dict(),
-        }, is_best)
+        }, is_best, args.save)
 
 ####################  TRAIN #############################################
 
