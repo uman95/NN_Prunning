@@ -96,6 +96,10 @@ def main():
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch](args.num_channel)
+        
+    if args.num_channel == 1:
+        model.conv1.in_channels = 1
+        model.conv1.weight = torch.nn.Parameter(model.conv1.weight.sum(1, keepdim=True))
 
     if not args.distributed:
         if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
