@@ -68,6 +68,7 @@ parser.add_argument('--save', default='.', type=str, metavar='PATH',
 
 best_prec1 = 0
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def main():
     global args, best_prec1
@@ -101,15 +102,20 @@ def main():
         model.conv1.in_channels = 1
         model.conv1.weight = torch.nn.Parameter(model.conv1.weight.sum(1, keepdim=True))
 
-    if not args.distributed:
-        if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-            model.features = torch.nn.DataParallel(model.features)
-            model.cuda()
-        else:
-            model = torch.nn.DataParallel(model).cuda()
-    else:
-        model.cuda()
-        model = torch.nn.parallel.DistributedDataParallel(model)
+#     if not args.distributed:
+#         if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
+#             model.features = torch.nn.DataParallel(model.features)
+#             model.cuda()
+#         else:
+#             model = torch.nn.DataParallel(model).cuda()
+#     else:
+#         model.cuda()
+#         model = torch.nn.parallel.DistributedDataParallel(model)
+    if torch.cuda.device_count() > 1:
+        print("Working with ", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
+        
+    model.to(device)
 
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
@@ -239,12 +245,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
     model.train()
 
     end = time.time()
-    for i, (input, target) in enumerate(train_loader):
+    for i, (data, target) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        target = target.cuda()
-        input_var = torch.autograd.Variable(input)
+        data, target = data.to(device), target.to(device)
+        input_var = torch.autograd.Variable(data)
         target_var = torch.autograd.Variable(target)
 
         # compute output
@@ -288,11 +294,11 @@ def validate(val_loader, model, criterion):
     model.eval()
 
     end = time.time()
-    for i, (input, target) in enumerate(val_loader):
-        target = target.cuda()
-        input_var = torch.autograd.Variable(input, volatile=True)
-        target_var = torch.autograd.Variable(target, volatile=True)
-
+    for i, (data, target) in enumerate(val_loader):
+        data, target =data.to(device), target.to(device)
+        with torch.no_grad():
+            input_var = torch.autograd.Variable(data)
+            target_var = torch.autograd.Variable(target)
         # compute output
         output = model(input_var)
         loss = criterion(output, target_var)
