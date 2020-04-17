@@ -164,7 +164,7 @@ def main():
             
         train_loader = torch.utils.data.DataLoader(
                        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-                       num_workers=1, pin_memory=True, sampler=train_sampler)
+                       num_workers=arg.workers, pin_memory=True, sampler=train_sampler)
 
         val_loader   = torch.utils.data.DataLoader(
                        datasets.ImageFolder(valdir, transforms.Compose([
@@ -173,7 +173,7 @@ def main():
                        transforms.ToTensor(),
                        normalize, ])),
                        batch_size=args.batch_size, shuffle=False,
-                       num_workers=8, pin_memory=True)
+                       num_workers=1, pin_memory=True)
         
     else: ## grey image
         
@@ -195,7 +195,7 @@ def main():
             
         train_loader = torch.utils.data.DataLoader(
                        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-                       num_workers=8, pin_memory=True, sampler=train_sampler)
+                       num_workers=arg.workers, pin_memory=True, sampler=train_sampler)
 
         val_loader   = torch.utils.data.DataLoader(
                        datasets.ImageFolder(valdir, transforms.Compose([
