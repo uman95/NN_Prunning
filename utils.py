@@ -15,7 +15,161 @@ import torch.nn.init as init
 import torch
 import torch.nn.functional as F
 import numpy as np
+import shutil
+import pathlib
+from tqdm import tqdm
+from os.path import join
 
+
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+
+def train(train_loader, model, criterion, optimizer, opt):
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
+
+    # switch to train mode
+    model.train()
+
+    for _, (input, target) in enumerate(tqdm(train_loader, dynamic_ncols=True, unit='batch')):
+        if opt.cuda:
+            target = target.cuda() # use of async=True is deprecated in cuda param.
+            input = input.cuda()
+        input_var = torch.autograd.Variable(input)
+        target_var = torch.autograd.Variable(target)
+
+        # compute output
+        output = model(input_var)
+        loss = criterion(output, target_var)
+
+        # measure accuracy and record loss
+        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
+        top5.update(prec5.item(), input.size(0))
+
+        # compute gradient and do SGD step
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        print(' * Training Prec@1 {top1.avg:.3f}\t Prec@5 {top5.avg:.3f}'.format(top1=top1, top5=top5))
+
+def validate(val_loader, model, criterion, opt, print_freq=10):
+    batch_time = AverageMeter()
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
+
+    # switch to evaluate mode
+    model.eval()
+    end = time.time()
+    for i, (input, target) in enumerate(tqdm(val_loader, dynamic_ncols=True, unit='batch')):
+        if opt.cuda:
+            target = target.cuda() # use of async=True is deprecated in cuda param.
+            input = input.cuda()
+
+        with torch.no_grad():
+            input_var = torch.autograd.Variable(input)
+            target_var = torch.autograd.Variable(target)
+
+        # compute output
+        output = model(input_var)
+        loss = criterion(output, target_var).cuda()
+
+        # measure accuracy and record loss
+        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
+        top5.update(prec5.item(), input.size(0))
+
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
+
+        if i % print_freq == 0:
+            print('Test: [{0}/{1}]\t'
+                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                i, len(val_loader), batch_time=batch_time, loss=losses,
+                top1=top1, top5=top5))
+
+    return top1.avg#, top5.avg
+
+
+def save_model(dir_path,state, epoch, is_best):
+    #dir_path = model/model_name/image_type
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    pathlib.Path(dir_path).mkdir(exist_ok=True)
+
+    model_file = join(dir_path, "ckpt_epoch_{}.pth".format(epoch))
+    #torch.save(state, os.path.join(filepath, 'checkpoint.pth.tar'))
+    torch.save(state, model_file)
+    if is_best:
+        shutil.copyfile(model_file, os.path.join(dir_path,'ckpt_best.pth'))
+
+    
+    
+#     dir_path = "model/" + model_name
+#     if not os.path.exists(dir_path):
+#         os.makedirs(dir_path)
+#     pathlib.Path(dir_path).mkdir(exist_ok=True)
+
+#     model_file = join(dir_path, "ckpt_epoch_{}.pth".format(epoch))
+
+#     if is_best:
+# #         'shutil.copyfile( os.path.join(model_file, 'ckpt_best.pth'))
+#         shutil.rmtree(dir_path)
+#         pathlib.Path(dir_path).mkdir(exist_ok=True)
+
+#         torch.save(state, model_file)
+#         shutil.copyfile(model_file, 'ckpt_best.pth')
+#     else:
+#         torch.save(state, model_file)
+
+
+def adjust_learning_rate(optimizer, epoch, lr):
+    """Sets the learning rate to the initial LR decayed by 10 every 50 epochs"""
+    lr = lr * (0.1 ** (epoch // 50))
+    # lr = opt.lr * (0.98 ** epoch)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
+def accuracy(output, target, topk=(1,)):
+    """Computes the precision@k for the specified values of k"""
+    maxk = max(topk)
+    batch_size = target.size(0)
+
+    _, pred = output.topk(maxk, 1, True, True)
+    pred = pred.t()
+    correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+    res = []
+    for k in topk:
+        correct_k = correct[:k].view(-1).float().sum(0)
+        res.append(correct_k.mul_(100.0 / batch_size))
+
+    return res
 
 
 def get_mean_and_std(dataset):
@@ -143,7 +297,7 @@ def images_to_probs(net, images):
     output = net(images)
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max(output, 1)
-    preds = np.squeeze(preds_tensor.numpy())
+    preds = np.squeeze(preds_tensor.cpu())
     return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, output)]
 
 
@@ -153,7 +307,7 @@ def matplotlib_imshow(img, one_channel=False):
     if one_channel:
         img = img.mean(dim=0)
     img = img / 2 + 0.5     # unnormalize
-    npimg = img.numpy()
+    npimg = img.cpu()
     if one_channel:
         plt.imshow(npimg, cmap="Greys")
     else:
