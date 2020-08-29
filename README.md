@@ -1,9 +1,14 @@
 📖 Documentation 
 ================
-### Refrence
+### Reference
 https://github.com/VainF/Torch-Pruning
 
 ### How to Run this project
+
+Start with Cloning this repository using this link:
+
+https://github.com/uman95/NN_Prunning.git
+
 
 Install the requirements:
 ```bash
